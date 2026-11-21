@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mochi the cat, sleeping on an empty shelf" viewBox="0 0 250 150" fill="none">
+<path d="M212 118C246 116 250 78 228 74" stroke="#3B2F5C" stroke-width="15" stroke-linecap="round"/>
+<path d="M212 118C246 116 250 78 228 74" stroke="#FFF6EC" stroke-width="9" stroke-linecap="round"/>
+<ellipse cx="124" cy="106" rx="92" ry="34" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3.5"/>
+<polygon points="30,86 28,44 62,66" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3.5" stroke-linejoin="round"/>
+<polygon points="118,70 132,40 150,76" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3.5" stroke-linejoin="round"/>
+<ellipse cx="82" cy="88" rx="58" ry="40" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3.5"/>
+<path d="M46 86q8 9 16 0M90 86q8 9 16 0" stroke="#3B2F5C" stroke-width="3.6" stroke-linecap="round"/>
+<ellipse cx="78" cy="98" rx="4.5" ry="3.3" fill="#FF8FB3"/>
+<ellipse cx="78" cy="108" rx="3.4" ry="2.8" fill="#FFC6E0" stroke="#3B2F5C" stroke-width="2.2"/>
+<ellipse cx="44" cy="100" rx="8" ry="6" fill="#FFC6E0" opacity="0.85"/><ellipse cx="114" cy="100" rx="8" ry="6" fill="#FFC6E0" opacity="0.85"/>
+<text x="168" y="46" font-family="Nunito, sans-serif" font-weight="900" font-size="22" fill="#5B4BC4">z</text>
+<text x="186" y="26" font-family="Nunito, sans-serif" font-weight="900" font-size="16" fill="#5B4BC4">z</text>
+</svg>

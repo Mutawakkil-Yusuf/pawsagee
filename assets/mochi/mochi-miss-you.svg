@@ -1,0 +1,14 @@
+<svg xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Mochi missing you" viewBox="0 0 120 100" fill="none">
+<polygon points="14,50 18,6 52,30" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="106,50 102,6 68,30" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3" stroke-linejoin="round"/>
+<polygon points="23,40 24,19 40,30" fill="#FFC6E0"/><polygon points="97,40 96,19 80,30" fill="#FFC6E0"/>
+<ellipse cx="60" cy="56" rx="48" ry="38" fill="#FFF6EC" stroke="#3B2F5C" stroke-width="3"/>
+<path d="M33 45l14 4M87 45l-14 4" stroke="#3B2F5C" stroke-width="2.6" stroke-linecap="round"/>
+<circle cx="41" cy="57" r="5" fill="#3B2F5C"/><circle cx="79" cy="57" r="5" fill="#3B2F5C"/>
+<circle cx="43" cy="55" r="1.6" fill="#fff"/><circle cx="81" cy="55" r="1.6" fill="#fff"/>
+<path d="M45 66q-3.5 6 0 8q3.5-2 0-8z" fill="#B8E2F7" stroke="#3B2F5C" stroke-width="1.6"/>
+<ellipse cx="60" cy="65" rx="4" ry="3" fill="#FF8FB3"/>
+<path d="M54 76q6-5 12 0" stroke="#3B2F5C" stroke-width="2.6" stroke-linecap="round"/>
+<ellipse cx="30" cy="68" rx="7" ry="5.5" fill="#FFC6E0" opacity="0.85"/><ellipse cx="90" cy="68" rx="7" ry="5.5" fill="#FFC6E0" opacity="0.85"/>
+<path d="M10 62L1 59M10 68L1 71M110 62L119 59M110 68L119 71" stroke="#3B2F5C" stroke-width="2" stroke-linecap="round"/>
+</svg>

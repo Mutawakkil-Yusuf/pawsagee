@@ -1,0 +1,80 @@
+/* Pawsage design tokens. Source of truth. Import once, use via var(--...). */
+
+:root {
+  /* Ink and violet */
+  --ink: #3B2F5C;
+  --muted: #6B5F8A;            /* 5.09:1 on mist */
+  --violet-500: #6C57E8;       /* primary fill, white text 5.04:1 */
+  --violet-600: #5B4BC4;       /* links, pressed, text on light, white 6.46:1 */
+  --lilac-100: #EFE8FF;
+  --lilac-300: #D9CCFF;
+
+  /* Surfaces */
+  --mist: #F3EEFF;
+  --blush: #FBEAF6;
+  --white: #FFFFFF;
+  --cream: #FFF6EC;            /* Mochi fur */
+
+  /* Candy accents. Always ink text on these. */
+  --pink: #FF8FB3;
+  --pink-soft: #FFC6E0;
+  --butter: #FFE8A3;
+  --butter-deep: #FFD36B;
+  --mint: #C8F0E0;
+  --mint-deep: #8FE0BF;
+  --sky: #B8E2F7;
+  --sky-deep: #8CCDF5;
+
+  /* Gradients */
+  --bg-app: linear-gradient(180deg, var(--mist) 0%, var(--blush) 100%);
+  --bg-celebrate: linear-gradient(180deg, #D9CCFF 0%, #FFC6E0 60%, #FFE8A3 100%);
+  --grad-violet: linear-gradient(135deg, #8A78FF 0%, #5B4BC4 100%);
+
+  /* Type */
+  --font: 'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --fs-display: 36px;  /* 900, -1% */
+  --fs-title: 28px;    /* 900, -2% */
+  --fs-heading: 22px;  /* 900 */
+  --fs-body: 15px;     /* 700 */
+  --fs-label: 13px;    /* 800 */
+  --fs-caption: 12px;  /* 800 */
+  --fs-overline: 12px; /* 900, +8% to +14%, uppercase */
+
+  /* Radii */
+  --r-chip: 14px;
+  --r-input: 22px;
+  --r-btn: 28px;       /* 56px tall pill. 60px for hero CTA = 30px */
+  --r-card: 30px;
+  --r-sheet: 36px;
+  --r-pill: 999px;
+
+  /* Shadows (violet tinted) */
+  --sh-sm: 0 4px 10px rgba(108, 87, 232, .10);
+  --sh-md: 0 12px 30px rgba(108, 87, 232, .14);
+  --sh-cta: 0 8px 16px rgba(108, 87, 232, .35);
+  --sh-nav: 0 10px 30px rgba(108, 87, 232, .22);
+  --sh-card-pop: 0 20px 40px rgba(108, 87, 232, .22);
+  --focus: 0 0 0 2px var(--violet-500), 0 0 0 6px var(--lilac-300);
+
+  /* Spacing, 4pt grid */
+  --s1: 4px; --s2: 8px; --s3: 12px; --s4: 16px; --s5: 20px; --s6: 24px; --s8: 32px; --s10: 40px;
+  --gutter: 20px;
+
+  /* Motion */
+  --ease-out: cubic-bezier(.22, .61, .36, 1);
+  --spring: cubic-bezier(.34, 1.56, .64, 1);
+  --t-tap: 180ms;
+  --t-mochi: 320ms;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root { --t-tap: 0ms; --t-mochi: 0ms; }
+}
+
+*, *::before, *::after { box-sizing: border-box; }
+html { -webkit-text-size-adjust: 100%; }
+body {
+  margin: 0; font-family: var(--font); font-weight: 700; font-size: var(--fs-body);
+  color: var(--ink); background: var(--bg-app); min-height: 100dvh;
+}
+:focus-visible { outline: none; box-shadow: var(--focus); }
