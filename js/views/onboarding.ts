@@ -29,8 +29,8 @@ function showErr(sh, err) {
 /** Step 2 of email sign-in: type the code from the email. (The email also holds a link; either one works.) */
 function codeStep(sh, email, close) {
   sh.querySelector('.sheet-body').innerHTML = String(html`<div class="center">${mochi('curious', { size: 80 })}</div>
-<h2 class="center">check your inbox.</h2><p class="muted center">mochi sent a sign-in link to ${email}</p>
-<p class="muted center note">tap the link in the email, or enter a code below if one was included.</p>
+<h2 class="center">check your inbox.</h2><p class="muted center">mochi sent a code to ${email}</p>
+<p class="muted center note">no code? tap the link in the email instead.</p>
 <form id="cf"><input class="input code" name="code" inputmode="numeric" autocomplete="one-time-code" pattern="[0-9]{6,10}" maxlength="10" placeholder="123456" aria-label="Sign-in code" required>
 <button class="btn primary" type="submit" data-sfx="pop">sign in</button></form><div id="msg" class="msg" aria-live="polite"></div>
 <div class="split"><button class="btn ghost" data-act="resend" type="button" data-sfx="pop">send a new code</button><button class="btn ghost" data-act="other" type="button">different email</button></div>`);
@@ -178,7 +178,7 @@ ${demo ? html`<p class="note">demo mode: your books stay on this device until Su
       sheet(demo
         ? html`<h2>what should mochi call you?</h2><p class="muted">Just a first name is perfect.</p>
 <form id="f"><input class="input" name="name" autocomplete="given-name" placeholder="your name" maxlength="30" required><button class="btn primary" type="submit" data-sfx="pop">let's start</button></form>`
-        : html`<h2>sign in with email</h2><p class="muted">We'll email you a sign-in link. No password needed.</p>
+        : html`<h2>sign in with email</h2><p class="muted">We'll email you a 6-digit code. No password needed.</p>
 <form id="f"><input class="input" type="email" name="email" autocomplete="email" placeholder="you@example.com" required><button class="btn primary" type="submit" data-sfx="pop">send me a code</button></form><div id="msg" class="msg" aria-live="polite"></div>`,
       { title: 'Sign in', onMount: (sh, close) => {
         sh.querySelector('#f').addEventListener('submit', async ev => {

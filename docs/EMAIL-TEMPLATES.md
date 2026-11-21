@@ -1,23 +1,42 @@
-# Supabase email templates for code sign-in
+# Supabase email delivery (OTP)
 
-Sign-in can use a 6-digit code **or** the magic link. Supabase only puts the code in the email if the template contains `{{ .Token }}`.
+Pawsage signs readers in with a **6-digit email OTP** (`signInWithOtp` + `verifyOtp(type: 'email')`). The email also contains a magic link as a fallback.
 
-**Free tier caveat:** custom email templates require a paid plan or custom SMTP. On the default free provider the email contains only the link. That is fine — the app opens the link via PKCE and signs the reader in; the code field is kept as a fallback. The copy in `js/views/onboarding.ts` is written for both cases.
+## How it is configured on the live project
 
-If you have templates enabled (paid plan or custom SMTP), edit **both** templates in Supabase: Authentication > Emails (Templates):
+Supabase's free tier does not allow editing the built-in email templates with the default email provider, so the code would never appear in the message. Instead, the project uses a **Send Email Auth Hook** that replaces built-in delivery:
 
-- **Magic Link** (used by people who already have an account)
-- **Confirm signup** (used the first time someone signs in)
+- **Edge Function:** `supabase/functions/send-otp/index.ts`
+  - verifies the Standard Webhooks signature from Supabase
+  - renders its own HTML containing `email_data.token` (the 6-digit code) and a magic link built from `token_hash`
+  - sends through the **Brevo** transactional email API
+- **Hook config** (Supabase Auth): `hook_send_email_enabled = true`, URI `https://rivogbfqucvmjjvtgklb.supabase.co/functions/v1/send-otp`, secret `v1,whsec_…`
+- **Supabase secrets** (set with `supabase secrets set`, never committed):
+  - `BREVO_API_KEY`, `SEND_EMAIL_HOOK_SECRET`, `SENDER_EMAIL`, `PROJECT_REF`
+- OTP length is 6 (`mailer_otp_length`), signups enabled, `mailer_autoconfirm = false`.
 
-Paste this as the message body in each:
+Brevo's free plan allows 300 emails/day — plenty for this app. Because the hook renders its own email, the built-in Magic Link / Confirm signup templates are irrelevant here.
 
-```html
-<h2>your pawsage code</h2>
-<p>Type this code in the app to sign in:</p>
-<p style="font-size:32px;font-weight:800;letter-spacing:6px">{{ .Token }}</p>
-<p>Or tap this link on the same device: <a href="{{ .ConfirmationURL }}">sign in</a></p>
-<p>If you didn't ask for this, you can ignore it.</p>
+## Deploying changes to the email
+
+```bash
+supabase functions deploy send-otp --no-verify-jwt
 ```
 
-Code length is set under Authentication > Sign In / Providers > Email (default 6). The app accepts 6 to 10 digits.
-Codes expire after an hour by default and can be used once.
+Secrets are already set on the project; redeploying the function does not change them. If you rotate the webhook secret, update BOTH the `hook_send_email_secrets` auth config field and the `SEND_EMAIL_HOOK_SECRET` Edge Function secret.
+
+## Verifying delivery
+
+```bash
+# send a real OTP
+curl -X POST https://rivogbfqucvmjjvtgklb.supabase.co/auth/v1/otp \
+  -H "apikey: <anon key>" -H "Content-Type: application/json" \
+  -d '{"email":"you@example.com","createUser":true,"emailRedirectTo":"https://pawsagee.netlify.app/"}'
+
+# check Brevo's log (requires the Brevo API key)
+curl -H "api-key: <brevo key>" "https://api.brevo.com/v3/smtp/emails?email=you%40example.com&limit=5"
+```
+
+## Fallback if you move off the hook
+
+If you upgrade to Supabase Pro or add custom SMTP, you can edit the built-in **Magic Link** and **Confirm signup** templates directly and include `{{ .Token }}` in both — then disable the hook. Both templates need the token because first-time users get *Confirm signup* and returning users get *Magic Link*.

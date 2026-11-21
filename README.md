@@ -29,7 +29,7 @@ A phone can't open the dev server from your computer. Deploy first (connect this
 1. Create a project at supabase.com. In **SQL editor**, review and run `supabase/schema.sql`.
 2. If you already ran an earlier version of the schema, also run `supabase/migrations/0003_user_overrides.sql` (per-user cover and page-count overrides). `0002_covers.sql` is already folded into `schema.sql`.
 3. Project settings > API: copy the **Project URL** and **anon public key** into `js/config.js`. Never use the service role key here.
-4. Sign-in is a 6-digit emailed code (the link still works too). **Edit both email templates** (Magic Link and Confirm signup) to include `{{ .Token }}`: see `docs/EMAIL-TEMPLATES.md`. Without that the email has only a link.
+4. Sign-in is a 6-digit emailed code (the link still works too). The live project uses a Send Email Auth Hook (`supabase/functions/send-otp`) that emails through Brevo, because Supabase's free tier can't edit the built-in templates. Setup and verification steps are in `docs/EMAIL-TEMPLATES.md`.
 5. Authentication > URL configuration: set the Site URL to your deployed URL and add `http://localhost:5173` as a redirect URL. Magic links use PKCE, so the link must be opened in the same browser that requested it.
 6. Authentication > Providers: enable Email. Enable Google if you want that button to work (needs a Google OAuth client).
 7. Test RLS with two accounts: books and shelves of A must be invisible to B, and A's catalog rows must remain editable by A.
