@@ -13,7 +13,7 @@
     X-Content-Type-Options = "nosniff"
     Referrer-Policy = "strict-origin-when-cross-origin"
     Permissions-Policy = "camera=(self), geolocation=(), microphone=()"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: blob: https://covers.openlibrary.org https://*.archive.org https://books.google.com https://books.googleusercontent.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openlibrary.org https://www.googleapis.com https://archive.org https://*.archive.org; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'"
+    Content-Security-Policy = "default-src 'self'; img-src 'self' data: blob: https://covers.openlibrary.org https://*.archive.org https://books.google.com https://books.googleusercontent.com; media-src 'self' blob:; connect-src 'self' https://*.supabase.co https://openlibrary.org https://www.googleapis.com; style-src 'self' 'unsafe-inline'; font-src 'self'; script-src 'self'; worker-src 'self'; manifest-src 'self'; frame-ancestors 'none'"
 
 [[headers]]
   for = "/sw.js"

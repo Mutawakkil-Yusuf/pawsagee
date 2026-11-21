@@ -36,7 +36,6 @@ ${total ? html`<div class="prog">${bar(p, 'var(--pink)')}<div class="row"><small
 ${store.get().shelves.length ? html`<div class="sec-h"><h2 class="heading">collections</h2></div><div class="chips wrap">${store.get().shelves.map(sh => html`<button class="chip ${ub.shelf_ids.includes(sh.id) ? 'on' : ''}" data-act="shelf" data-id="${sh.id}" aria-pressed="${ub.shelf_ids.includes(sh.id)}">${sh.name}</button>`)}</div>` : ''}
 <div class="sec-h"><h2 class="heading">notes</h2></div>
 <textarea class="input notes" id="notes" rows="3" maxlength="2000" placeholder="a thought, a quote, a page number...">${ub.notes || ''}</textarea>
-<a class="btn white read-cta" href="#/read/${ub.id}">${ic.book} read a free edition</a>
 <div class="dock"><a class="btn primary grow" href="#/log/${ub.id}">start a session <span class="playdot">${ic.play}</span></a><button class="iconbtn big" data-act="menu" aria-label="More options">${ic.more}</button></div>`);
   animateIn(root);
 

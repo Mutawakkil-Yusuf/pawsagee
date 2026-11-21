@@ -120,6 +120,20 @@ export interface BookDoc {
   ia?: string[];
 }
 
+export interface LocalBook {
+  id: string;
+  name: string;
+  title: string;
+  type: 'pdf' | 'epub' | 'txt';
+  size: number;
+  addedAt: number;
+  lastOpened: number;
+  progress: number;   // 0..1
+  location: string;   // page number, CFI, or char offset
+  blob: Blob;
+  cover?: string | null;  // extracted cover as a data URL
+}
+
 export interface RouteParams extends Record<string, string> {}
 export interface View {
   (params: RouteParams): HTMLElement | Promise<HTMLElement>;

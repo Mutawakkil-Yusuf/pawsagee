@@ -1,29 +1,36 @@
-# 06. Reading in the app
+# 06. Reading your own books
 
-Pawsage can display actual book text on a phone, in two ways.
+Pawsage is a home for books you've already downloaded. Nothing is fetched from an outside book source — the reader works entirely with files on the device.
 
-## Public-domain editions (`#/read/:id`)
+## Importing
 
-Every book detail screen has **"read a free edition"**. Tapping it:
+- **Library → "your books" → add files** picks one or more **PDF, EPUB or TXT** files from the phone.
+- Files are stored in **IndexedDB** (`js/files.ts`), so they stay on the device and survive reloads and offline use. Nothing is uploaded.
+- Each imported book gets a real cover when possible:
+  - **PDF** → page 1 is rendered to a small JPEG thumbnail (`js/coverextract.ts`).
+  - **EPUB** → the cover image declared in the EPUB metadata is extracted (`js/epub.ts`).
+  - **TXT** → a stable colour gradient generated from the title.
+- The shelf shows each book's cover, file size and reading progress; a small trash button removes it.
 
-1. Looks for Archive.org identifiers from Open Library (stored when the book was added, or looked up on demand).
-2. Prefers identifiers that are public-domain scans (`…gut`, older `…01aust`-style IDs) over borrow-only ones.
-3. Fetches the clean Project Gutenberg `.txt` file when the Archive item has one; falls back to OCR text otherwise.
-4. Cleans front matter, splits into chapters, and paginates into comfortable pages.
+## Reading
 
-The reader keeps your page per book in localStorage, has a table of contents, text-size / line-spacing / paper-sepia-night settings, arrow-key and swipe navigation, and prefers the same warm visual language as the rest of the app. The body uses a serif face for long-form comfort — a deliberate exception to the Nunito-only UI rule.
+Tap any book on the personal shelf:
 
-If a book has no free edition, Mochi says so gently and sends you back to the book; nothing is lost.
+- **PDF** pages are rendered with `pdfjs-dist` into the same paper-like shell. Previous/next, progress and page position are saved.
+- **EPUB** and **TXT** are converted to clean, paginated text (`js/epub.ts` → `js/reader.ts`): chapter detection, comfortable page lengths, chapter labels, page progress.
+- Progress (`progress` + `location`) is saved per book in IndexedDB after every page turn, so reopening resumes where you left off.
+- The bottom nav is hidden while reading for a quiet, book-like feel.
 
-## Your own PDFs (`#/pdf`)
-
-More → **"read a pdf from your device"** opens a file picker. The selected PDF stays on the device — nothing is uploaded — and is rendered page by page with `pdfjs-dist`. You get page navigation, a slider, zoom controls, and the same paper-like shell. The pdf.js worker is bundled and precached so it works offline after the first load.
-
-`pdfjs-dist` is loaded as a lazy route chunk so it does not inflate the main bundle (main app stays ~100 KB; the PDF reader is a separate ~336 KB chunk).
+Larger libraries are fine up to the browser's IndexedDB quota; individual files over 40 MB are rejected with a friendly message.
 
 ## Technical notes
 
-- `js/reader.ts` holds the text discovery/cleaning/pagination logic (pure functions are unit-tested).
-- `js/views/read.ts` and `js/views/pdfread.ts` are the two immersive views. Both hide the bottom nav.
-- The CSP allows `archive.org` / `*.archive.org` in `connect-src`, and the service worker caches those responses.
-- Open Library's cover ids are also used for the real book covers shown in onboarding; those images are bundled in `public/assets/covers/` so they work offline.
+- `js/files.ts` — IndexedDB wrapper for stored books.
+- `js/coverextract.ts` — PDF/EPUB cover extraction (pdf.js loaded lazily).
+- `js/epub.ts` — EPUB unzip/spine/text extraction via JSZip (no iframe renderer).
+- `js/reader.ts` — pure text cleaning, chapter splitting and pagination helpers (unit-tested).
+- `js/views/local.ts` — the "your books" shelf and import flow.
+- `js/views/localread.ts` — the shared reader shell for all three formats.
+- A small legacy `#/pdf` quick-open route remains under More for opening one PDF without adding it to the shelf.
+
+The main bundle stays ~96 KB; pdf.js and the EPUB/cover helpers load as separate chunks only when needed.

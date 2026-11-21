@@ -23,7 +23,6 @@ export default defineConfig({
             // Book covers: show cached immediately, refresh quietly. Cap at 200.
             urlPattern: ({ url }) =>
               url.hostname === 'covers.openlibrary.org' ||
-              url.hostname.endsWith('archive.org') ||
               url.hostname === 'books.google.com' ||
               url.hostname.endsWith('googleusercontent.com'),
             handler: 'StaleWhileRevalidate',

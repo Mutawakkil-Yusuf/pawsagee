@@ -67,8 +67,8 @@ Segmented range: week, month, year. Yearly goal ring (`finished_per_year`), stre
 
 ## Reading (added after the original 14 screens)
 
-- **Read** `#/read/:id` (no nav): paginated public-domain text with chapter navigation, TOC and reading settings.
-- **Read PDF** `#/pdf` (no nav): pick a local PDF and read it page by page. See `docs/06-reading.md`.
+- **Your books** (part of Library): imported PDF/EPUB/TXT files with their own covers and progress.
+- **Read local** `#/local/:id` (no nav): paginated reader for an imported book. See `docs/06-reading.md`.
 
 ## Moments
 

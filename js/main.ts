@@ -16,7 +16,6 @@ import { stats } from './views/stats';
 import { celebrate } from './views/celebrate';
 import { recap } from './views/recap';
 import { more } from './views/more';
-import { read } from './views/read';
 
 const noAuth = { auth: false };
 route('/splash', onb.splash, noAuth);
@@ -29,7 +28,7 @@ route('/library', library, { nav: true });
 route('/add', add, { nav: true });
 route('/book/:id', book, { navKey: 'library' });
 route('/log/:id', log, { navKey: 'library' });
-route('/read/:id', read, { navKey: 'library' });
+route('/local/:id', params => import('./views/localread').then(m => m.localread({ id: params.id })), { navKey: 'library' });
 route('/pdf', params => import('./views/pdfread').then(m => m.pdfread()), { navKey: 'more' });
 route('/stats', stats, { nav: true });
 route('/more', more, { nav: true });

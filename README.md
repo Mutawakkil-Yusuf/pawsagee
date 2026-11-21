@@ -1,6 +1,6 @@
 # Pawsage
 
-A cozy reading tracker. Vanilla UI (no framework), Vite + TypeScript tooling, Supabase, Netlify, installable PWA. Read public-domain editions or your own PDFs right in the app.
+A cozy reading tracker. Vanilla UI (no framework), Vite + TypeScript tooling, Supabase, Netlify, installable PWA. Import your own downloaded books and read them right in the app.
 
 ## Run it locally
 
@@ -48,7 +48,7 @@ Connect the repo. `netlify.toml` sets `npm ci && npm run build`, publishes `dist
 - `css/tokens.css`: brand tokens. `docs/`: brand, design system, screens, architecture, stack, testing
 - `public/`: static assets copied verbatim into the build (icons, fonts, Mochi SVGs, manifest, QR scanner)
 - `tests/`: Vitest unit tests
-- `js/reader.ts` + `js/views/read.ts` + `js/views/pdfread.ts`: in-app reading (see `docs/06-reading.md`)
+- `js/files.ts`, `js/coverextract.ts`, `js/epub.ts`, `js/reader.ts`, `js/views/local.ts`, `js/views/localread.ts`: your personal offline bookshelf (see `docs/06-reading.md`)
 
 ## Covers
 
@@ -56,12 +56,12 @@ Each book tries, in order: Open Library by cover id, a stored cover_url (per-use
 
 ## Reading
 
-Book detail → **read a free edition** opens a clean, paginated public-domain edition (Open Library / Internet Archive). More → **read a pdf from your device** lets you read your own PDFs locally. See `docs/06-reading.md`.
+Library → **your books → add files** imports your downloaded PDF, EPUB or TXT files. They stay on your device, get real covers where available, and open in a clean paginated reader that remembers your place. See `docs/06-reading.md`.
 
 ## Known limits
 
 - Reminders are an in-app nudge on Home. Real push notifications are not built (web push via the service worker is the next step; native only if app stores are a goal).
-- In-app text works for public-domain editions; copyrighted books track progress but are not reproduced.
+- Reading is for files you already have; the app doesn't fetch or distribute book text.
 - Apple sign-in is not built (needs an Apple developer account).
 - Streaks and stats are computed in the browser from the last 400 days of sessions.
 - Cover images load from Open Library. Missing covers fall back to generated ones.

@@ -38,8 +38,9 @@ Vanilla ES modules and CSS. Vite is a **build tool only** — there is no UI fra
 │  ├─ html.ts                 safe template tag
 │  ├─ sound.ts                synthesized WebAudio effects
 │  ├─ guard.ts                friendly error if opened over file://
-│  ├─ reader.ts               public-domain text discovery/cleaning/pagination
-│  └─ views/                  one file per screen (incl. read.ts, pdfread.ts)
+│  ├─ files.ts                IndexedDB store for imported books
+│  ├─ epub.ts / coverextract.ts / reader.ts   import, covers, text pagination
+│  └─ views/                  one file per screen (incl. local.ts, localread.ts)
 ├─ supabase/                  schema + migrations
 ├─ tests/                     Vitest unit tests
 └─ docs/

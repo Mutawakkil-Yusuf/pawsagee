@@ -5,6 +5,7 @@ import { createShelf, updateShelf, deleteShelf, moveShelf } from '../actions';
 import { refresh as rerender } from '../router';
 import { sfx } from '../sound';
 import { bookRow, emptyShelf } from './shared';
+import { localShelf } from './local';
 import type { Shelf, ShelfColor } from '../types';
 
 const FILTERS = [['all', 'all'], ['reading', 'reading'], ['want', 'up next'], ['finished', 'done']];
@@ -17,6 +18,7 @@ export function library() {
 
   if (!s.books.length) {
     const root = el(html`<header><h1 class="display">my shelf</h1><p class="muted">0 books · ${s.shelves.length} collections</p></header>${emptyShelf()}`);
+    root.insertBefore(localShelf(), root.querySelector('.empty-card')!);
     return root;
   }
 
@@ -48,6 +50,7 @@ ${id !== '' ? html`<a class="mini plus" href="#/add?shelf=${id}" aria-label="Add
 <div class="searchbar" hidden><span>${ic.search}</span><input class="input" id="lq" placeholder="search my books" aria-label="Search my books" autocomplete="off"></div>
 <div class="chips" role="tablist">${FILTERS.map(([k, l]) => html`<button class="chip ${k === filter ? 'on' : ''}" role="tab" aria-selected="${k === filter}" data-act="filter" data-v="${k}">${l}</button>`)}</div>
 <div id="lib-body">${body()}</div>`);
+  root.insertBefore(localShelf(), root.querySelector('#lib-body')!);
   const out = root.querySelector<HTMLElement>('#lib-body')!;
   const paint = () => { out.innerHTML = String(body()); animateIn(out); };
 
