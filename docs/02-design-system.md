@@ -1,6 +1,6 @@
 # 02. Design system
 
-All values live in `design/tokens.css`. This file explains how to use them. The visual boards are in `reference/` (start with `reference/color.png` and `reference/components.png`).
+All values live in `css/tokens.css` (machine-readable copy in `docs/tokens.json`). This file explains how to use them.
 
 ## Color rules
 

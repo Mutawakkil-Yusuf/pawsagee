@@ -96,6 +96,10 @@ create table public.user_books (
   finished_at   date,
   is_favorite   boolean not null default false,
   notes         text,
+  -- Per-user overrides. The books catalog is shared, so edits to cover/page count
+  -- live here instead of on the catalog row (where RLS only lets the creator write).
+  cover_url     text,
+  page_count    int check (page_count is null or page_count > 0),
   created_at    timestamptz not null default now(),
   updated_at    timestamptz not null default now(),
   unique (user_id, book_id)
@@ -216,60 +220,10 @@ create policy "sessions all own" on public.reading_sessions
                 where ub.id = user_book_id and ub.user_id = (select auth.uid()))
   );
 
+
 -- ---------------------------------------------------------------------------
--- Views and functions (security invoker, so RLS still applies)
+-- Derived data (streaks, stats, calendar) lives in js/streaks.ts on the client.
+-- There are deliberately no server-side streak views/functions: a second
+-- implementation using profiles.timezone would disagree with the device-local
+-- day bucketing used by the app (and by the offline demo backend).
 -- ---------------------------------------------------------------------------
-
--- One row per user per local calendar day with reading activity.
-create or replace view public.reading_days with (security_invoker = true) as
-select rs.user_id,
-       (rs.started_at at time zone p.timezone)::date as day,
-       sum(rs.duration_sec)::int                     as seconds,
-       sum(rs.pages_read)::int                       as pages
-from public.reading_sessions rs
-join public.profiles p on p.id = rs.user_id
-group by rs.user_id, (rs.started_at at time zone p.timezone)::date;
-
--- Books finished per year, for the yearly goal ring.
-create or replace view public.finished_per_year with (security_invoker = true) as
-select user_id,
-       extract(year from finished_at)::int as year,
-       count(*)::int                       as books
-from public.user_books
-where status = 'finished' and finished_at is not null
-group by user_id, extract(year from finished_at);
-
--- Current streak in days. Today not read yet? The streak still counts through yesterday.
-create or replace function public.current_streak(p_user uuid default auth.uid())
-returns int language sql stable security invoker set search_path = public as $$
-  with tz as (
-    select coalesce((select timezone from public.profiles where id = p_user), 'UTC') as z
-  ),
-  today as (select (now() at time zone (select z from tz))::date as d),
-  days as (select distinct day from public.reading_days where user_id = p_user),
-  anchor as (
-    select case when exists (select 1 from days where day = (select d from today))
-                then (select d from today)
-                else (select d from today) - 1 end as a
-  ),
-  numbered as (
-    select day, row_number() over (order by day desc) as rn
-    from days
-    where day <= (select a from anchor)
-  )
-  select count(*)::int
-  from numbered
-  where day = (select a from anchor) - (rn - 1)::int;
-$$;
-
--- Longest streak ever (gaps-and-islands).
-create or replace function public.longest_streak(p_user uuid default auth.uid())
-returns int language sql stable security invoker set search_path = public as $$
-  with d as (select distinct day from public.reading_days where user_id = p_user),
-  g as (select day, day - (row_number() over (order by day))::int as grp from d)
-  select coalesce(max(c), 0)::int
-  from (select count(*) as c from g group by grp) t;
-$$;
-
-grant execute on function public.current_streak(uuid) to authenticated;
-grant execute on function public.longest_streak(uuid)  to authenticated;

@@ -1,213 +1,113 @@
 # 04. Architecture
 
-Vanilla JS, ES modules, no build step. Everything is static files served by Netlify. Keep it small enough that one person can read all of it in an afternoon.
+Vanilla ES modules and CSS. Vite is a **build tool only** — there is no UI framework. Output is static files served by Netlify. Supabase is imported dynamically and only when `js/config.ts` has a URL and key.
 
 ## File layout
 
 ```
 /
-├─ index.html                 shell: <div id="app">, nav, toast root, module script
-├─ manifest.webmanifest
-├─ sw.js                      service worker
-├─ netlify.toml
+├─ index.html                 shell: <main id="app">, nav, toast/sheet roots, module script
+├─ package.json               scripts: dev, build, preview, test, typecheck
+├─ tsconfig.json              TypeScript config (see "TypeScript policy" below)
+├─ vite.config.ts             build + vite-plugin-pwa (generated service worker)
+├─ vitest.config.ts           jsdom test environment
+├─ netlify.toml               build command, publish dist/, redirects, headers
+├─ public/                    copied verbatim to dist/
+│  ├─ manifest.webmanifest
+│  ├─ assets/logo, assets/mochi
+│  ├─ fonts/, icons/
+│  └─ vendor/html5-qrcode.min.js   (lazy-loaded only when the scan tab is used)
 ├─ css/
-│  ├─ tokens.css              copy of design/tokens.css
-│  ├─ base.css                reset, body, focus, utilities
-│  ├─ components.css          .btn .chip .card .nv .toast .sheet ...
-│  └─ screens.css             per-screen layout classes
+│  ├─ tokens.css              design tokens (source of truth)
+│  ├─ base.css                reset, shell, reusable components
+│  └─ app.css                 per-screen layout
 ├─ js/
-│  ├─ main.js                 boot: config, auth listener, router start, SW register
-│  ├─ config.js               SUPABASE_URL, SUPABASE_ANON_KEY (public values)
-│  ├─ router.js
-│  ├─ store.js                tiny observable state
-│  ├─ db.js                   all Supabase calls live here, nowhere else
-│  ├─ openlibrary.js          search, cover URL, normalize
-│  ├─ session-timer.js        timestamp-based timer + localStorage persistence
-│  ├─ streaks.js              milestone detection, celebrate-once flags
-│  ├─ ui/html.js              safe template tag
-│  ├─ ui/components.js        button(), chip(), bookRow(), cover(), mochi(), toast(), sheet()
-│  └─ views/                  splash.js welcome.js ... one file per screen
-├─ assets/                    from this pack (logo, mochi, icons)
-├─ fonts/                     Nunito woff2, weights 600 to 900
+│  ├─ main.ts                 boot: config, auth listener, router start, SW register
+│  ├─ config.ts               SUPABASE_URL, SUPABASE_ANON_KEY (public values)
+│  ├─ types.ts                shared shapes + small global augmentations
+│  ├─ router.ts               hash router
+│  ├─ store.ts                tiny observable state + localStorage prefs
+│  ├─ db.ts                   all data access; demo and Supabase backends behind one interface
+│  ├─ actions.ts              store-level operations, optimistic patches, offline queue
+│  ├─ openlibrary.ts          Open Library / Google Books search and covers
+│  ├─ covers.ts               cover resolution + background lookup
+│  ├─ grads.ts                pure generated-cover gradient hashing
+│  ├─ timer.ts                timestamp-based timer + localStorage persistence
+│  ├─ streaks.ts              THE source of truth for streaks/stats/calendar
+│  ├─ ui.ts                   icons, Mochi, covers, rings, toast, sheet, confetti
+│  ├─ html.ts                 safe template tag
+│  ├─ sound.ts                synthesized WebAudio effects
+│  ├─ guard.ts                friendly error if opened over file://
+│  └─ views/                  one file per screen
+├─ supabase/                  schema + migrations
+├─ tests/                     Vitest unit tests
 └─ docs/
 ```
 
-Supabase JS client: load from `https://esm.sh/@supabase/supabase-js@2` pinned to an exact version, or vendor the file into `js/vendor/`. Vendoring is preferred so offline start works.
-
 ## Routing
 
-Hash router. `#/home`, `#/library`, `#/add`, `#/book/:id`, `#/log/:id`, `#/stats`, `#/celebrate`, `#/recap`, onboarding routes as in `03-screens.md`.
+Hash router. `#/home`, `#/library`, `#/add`, `#/book/:id`, `#/log/:id`, `#/stats`, `#/more`, `#/celebrate`, `#/recap`, plus onboarding routes. On auth change the guard redirects protected routes to Welcome.
 
-```js
-// router.js
-const routes = [];                         // [{ pattern: RegExp, keys: [], view: fn }]
-export function route(path, view) { /* compile ':id' to a RegExp */ }
-export function start() {
-  const go = async () => {
-    const [path, qs] = (location.hash.slice(1) || '/splash').split('?');
-    const match = find(path);
-    const params = { ...match.params, ...Object.fromEntries(new URLSearchParams(qs)) };
-    if (match.auth && !store.get().session) return (location.hash = '#/welcome');
-    app.replaceChildren(await match.view(params));   // views return a DOM node
-    document.body.dataset.nav = match.nav ? 'on' : 'off';
-    app.focus();                                      // move focus for screen readers
-  };
-  addEventListener('hashchange', go); go();
-}
-```
-
-Auth guard: everything except onboarding routes needs a session.
+`back(fallback)` deliberately **does not** call `history.back()`: hash routers can otherwise leave the app, and installed PWAs have no referrer. Every in-app back button passes an explicit fallback. Device/browser back still works through `hashchange`.
 
 ## Safe templating (security rule 6)
 
-```js
-// ui/html.js
-const esc = s => String(s ?? '').replace(/[&<>"']/g, c =>
-  ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
-export const raw = s => ({ __raw: String(s) });
-export function html(strings, ...vals) {
-  const out = strings.reduce((acc, s, i) => {
-    const v = vals[i - 1];
-    const part = Array.isArray(v) ? v.map(x => x?.__raw ?? esc(x)).join('') : (v?.__raw ?? esc(v));
-    return acc + part + s;
-  });
-  return out;
-}
-```
-
-Use `html` for every template that contains data. `raw()` only for trusted static SVG from `assets/`. Never put Open Library strings, titles, notes or names into `innerHTML` any other way. Use `textContent` for single values.
+`html.ts` escapes every interpolation unless it came from `html``` or `raw()`. `raw()` is only for trusted static SVG from `public/assets/`. Never put Open Library strings, titles, notes or names into `innerHTML` any other way — use `textContent` for single values.
 
 ## State
 
-`store.js` is an object plus subscribers. Keep it flat: `session`, `profile`, `shelves`, `userBooks` (joined with `books`), `activeSession` (timer), `online`. Views read from the store and call functions in `db.js`. After a write, update the store optimistically and roll back on error with the generic error toast.
+`store.ts` is a flat object plus subscribers: `session`, `profile`, `shelves`, `books` (user_books joined with catalog book + `shelf_ids`), `sessions`, `online`, `ready`. Views read from the store and call functions in `actions.ts`. After a write, update the store optimistically and roll back on error with the generic error toast.
 
-## Data layer (`db.js`)
+## Data layer (db.ts)
 
-One module, thin wrappers. Examples:
+Both backends satisfy the `Backend` interface, so callers are agnostic:
 
-```js
-export const listUserBooks = () => sb.from('user_books')
-  .select('*, book:books(*), shelf_books(shelf_id)').order('updated_at', { ascending: false });
+- **demo**: a single `pawsage.demo.v1` localStorage blob.
+- **supabase**: thin wrappers over PostgREST/Auth. The client is created by an async `client()` that dynamically imports `@supabase/supabase-js` on first use.
 
-export async function addBook(olDoc, status = 'want', shelfId = null) {
-  // 1. upsert the catalog row by ol_work_key (insert if new, never overwrite someone else's row)
-  let { data: book } = await sb.from('books').select('*').eq('ol_work_key', olDoc.key).maybeSingle();
-  if (!book) {
-    ({ data: book } = await sb.from('books').insert({
-      ol_work_key: olDoc.key, ol_cover_id: olDoc.cover_i ?? null,
-      title: olDoc.title, authors: olDoc.author_name ?? [],
-      first_publish_year: olDoc.first_publish_year ?? null,
-      page_count: olDoc.number_of_pages_median ?? null,
-      created_by: (await sb.auth.getUser()).data.user.id,
-    }).select().single());
-  }
-  // 2. link to user. unique(user_id, book_id) makes this idempotent
-  const { data: ub, error } = await sb.from('user_books')
-    .upsert({ user_id: uid(), book_id: book.id, status }, { onConflict: 'user_id,book_id', ignoreDuplicates: true })
-    .select().maybeSingle();
-  // 3. optional shelf
-  if (shelfId && ub) await sb.from('shelf_books').upsert({ shelf_id: shelfId, user_book_id: ub.id });
-  return { book, ub, error };
+`loadAll()` merges each reader's `user_books.cover_url` / `user_books.page_count` overrides into the shared `books` row. This is why the catalog can stay shared and immutable while each reader can still edit page counts and remember a fallback cover — `schema.sql` gives `UPDATE` on `books` only to its creator.
+
+```ts
+// loadAll merge (simplified)
+{
+  ...userBook,
+  book: {
+    ...catalogRow,
+    cover_url: userBook.cover_url ?? catalogRow.cover_url,
+    page_count: userBook.page_count ?? catalogRow.page_count,
+  },
+  shelf_ids: userBook.shelf_books.map(r => r.shelf_id),
 }
 ```
 
-If two users insert the same `ol_work_key` at once the unique index makes one fail. Catch it and re-select.
+## Streaks and stats — one source of truth
 
-Streak: `await sb.rpc('current_streak')`. Longest: `sb.rpc('longest_streak')`. Calendar: `sb.from('reading_days').select('*').gte('day', monthStart)`. Yearly goal: `sb.from('finished_per_year')`.
+Everything derived from sessions lives in `js/streaks.ts` and uses **device-local calendar days**. Earlier schema drafts had `reading_days`, `current_streak()` and `longest_streak()` SQL helpers using `profiles.timezone`; they were removed because they would disagree with the client (and with the offline demo backend) whenever a reader travels or their profile timezone is stale. If you later want server-authoritative streaks, introduce them deliberately and have the client call the RPC when online.
 
-Set `profiles.timezone` from `Intl.DateTimeFormat().resolvedOptions().timeZone` at first sign-in and when it changes.
-
-## Auth
-
-- Supabase Auth: email magic link (`signInWithOtp`) and Google OAuth. Set Site URL and redirect URLs to the Netlify domain and `http://localhost:8888`.
-- Keep the session in the default `localStorage` store. `onAuthStateChange` updates `store.session`.
-- Show the "link didn't work" copy if the URL contains an auth error.
-
-## Open Library (`openlibrary.js`)
-
-```js
-const BASE = 'https://openlibrary.org';
-const FIELDS = 'key,title,author_name,first_publish_year,cover_i,number_of_pages_median,isbn';
-const cache = new Map();
-export async function search(q, { signal } = {}) {
-  q = q.trim(); if (q.length < 2) return [];
-  if (cache.has(q)) return cache.get(q);
-  const r = await fetch(`${BASE}/search.json?q=${encodeURIComponent(q)}&limit=12&fields=${FIELDS}`, { signal });
-  if (!r.ok) throw new Error('search failed');
-  const docs = (await r.json()).docs ?? [];
-  cache.set(q, docs); return docs;
-}
-export const coverUrl = (id, size = 'M') =>
-  id ? `https://covers.openlibrary.org/b/id/${id}-${size}.jpg?default=false` : null;
-export const byIsbn = async isbn => (await search(`isbn:${isbn}`))[0] ?? null;
-```
-
-- Debounce input 350 ms and abort the previous request with `AbortController`.
-- `<img loading="lazy" decoding="async">` for covers, with `onerror` swapping to the generated cover. `?default=false` makes missing covers return 404 instead of a blank image.
-- Be a good citizen: identify the app with a `User-Agent`-style note is not possible from browsers, so just keep requests low and cached.
+Sessions are loaded for the last 400 days; older sessions still exist but don't feed the charts.
 
 ## Reading session timer
 
-```js
-// session-timer.js
-const KEY = 'pawsage.activeSession';
-export const begin = (userBookId, startPage) =>
-  save({ userBookId, startPage, startedAt: Date.now(), pausedMs: 0, pausedAt: null });
-export const elapsedSec = s => Math.floor(((s.pausedAt ?? Date.now()) - s.startedAt - s.pausedMs) / 1000);
-// pause(): pausedAt = now.  resume(): pausedMs += now - pausedAt; pausedAt = null.
-// finish(endPage): insert reading_sessions row, clear the key.
-```
-
-The display redraws with `requestAnimationFrame` or a 1 s interval but always derives from timestamps. On boot, if the key exists, offer "resume session" via Mochi.
+`timer.ts` stores `{ userBookId, startPage, startedAt, pausedMs, pausedAt }` under `pawsage.active`. `elapsedSec()` derives time from those timestamps, so reloads, background tabs and interval drift are harmless. Ceilings: the display redraws on a 250 ms interval, announces only whole minutes, and the finish action writes a `reading_sessions` row.
 
 ## Offline and PWA
 
-- `manifest.webmanifest`: `name: "Pawsage"`, `short_name: "Pawsage"`, `display: "standalone"`, `background_color: "#F3EEFF"`, `theme_color: "#6C57E8"`, `start_url: "/#/home"`, icons 192, 512 (and maskable 512).
-- `sw.js`: precache the shell (index, css, js, fonts, assets) with a versioned cache name. Strategy: cache-first for static files, stale-while-revalidate for Open Library covers (cap 200 entries), network-only for Supabase requests. Bump the cache version on every release.
-- Queue failed `reading_sessions` inserts in `localStorage` (`pawsage.queue`) and flush on `online` and on boot. This is the only offline write path in the MVP.
-- Show the offline banner when `navigator.onLine` is false.
-- iOS: add `apple-touch-icon` (180), `apple-mobile-web-app-capable`, status bar `default`.
+- `vite-plugin-pwa` (`generateSW`) builds `dist/sw.js` and the precache manifest from the actual build output. No hand-maintained VERSION/SHELL list.
+- `registerType: 'autoUpdate'`; registration is explicit in `main.ts`.
+- Runtime caching: covers (Open Library / archive.org / Google) use stale-while-revalidate capped at 200 entries; Open Library search, Google Books and Supabase are network-only.
+- Failed `reading_sessions` inserts queue in `pawsage.queue` and flush on `online` and boot. This is the only offline write path.
+- `manifest.webmanifest` and `netlify.toml` headers (including CSP) are unchanged in intent; see the files for exact values.
 
-## Netlify (`netlify.toml`)
+## Supabase
 
-```toml
-[build]
-  publish = "."
+- RLS on every table. `profiles`, `shelves`, `user_books`, `shelf_books`, `reading_sessions` are owner-only. `books` is readable by any signed-in user, insertable with `created_by = auth.uid()`, and effectively immutable for others (per-user edits live on `user_books`).
+- The `on_auth_user_created` trigger creates a profile row.
+- Anon key only in `config.ts`. No service role key anywhere in the repo or client env.
 
-[[redirects]]
-  from = "/*"
-  to = "/index.html"
-  status = 200
+## TypeScript policy
 
-[[headers]]
-  for = "/*"
-  [headers.values]
-    X-Content-Type-Options = "nosniff"
-    Referrer-Policy = "strict-origin-when-cross-origin"
-    Permissions-Policy = "camera=(self), geolocation=(), microphone=()"
-    Content-Security-Policy = "default-src 'self'; img-src 'self' data: https://covers.openlibrary.org https://*.archive.org; connect-src 'self' https://*.supabase.co https://openlibrary.org; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self'; frame-ancestors 'none'"
+`tsconfig.json` enables type checking with `strict: true` but keeps `noImplicitAny` and `strictNullChecks` off. The view layer is DOM-event-heavy vanilla JS; turning those on would require a large cast-only rewrite with little payoff. The shared shapes in `types.ts` still catch wrong assignments and wrong arguments. Tighten incrementally, one view at a time.
 
-[[headers]]
-  for = "/sw.js"
-  [headers.values]
-    Cache-Control = "no-cache"
-```
+## Testing
 
-Remove the Google Fonts allowances after self-hosting. If using esm.sh instead of vendoring, add it to `script-src`.
-
-## Security checklist
-
-- RLS on every table (see schema). Test with two accounts before shipping M2.
-- Anon key only in the client. No service role key anywhere in the repo or Netlify client env.
-- Escape everything (see `html` tag). No `eval`, no inline event handlers, CSP blocks inline scripts.
-- Validate lengths client-side to match the DB checks (title 300, shelf name 40).
-- Don't log user data to the console.
-
-## Testing (`docs/TESTING.md`, write it during M2)
-
-Manual checklist per milestone plus the two-user RLS check: create users A and B, add books and shelves as A, confirm B sees none of them and cannot read or write A's rows by id through the Supabase client. Unit-test pure helpers (`elapsedSec`, streak milestone logic, `html` escaping, cover hashing) with plain Node `assert` scripts. No test framework needed.
-
-## Environment
-
-- `js/config.js` holds `SUPABASE_URL` and `SUPABASE_ANON_KEY` placeholders. The owner fills them in after creating the Supabase project.
-- Local dev: `npx serve -s .` or `netlify dev`.
+See `docs/TESTING.md`. `npm test` runs the Vitest suite; `npm run typecheck` and `npm run build` run in CI-equivalent fashion via the Netlify build command.

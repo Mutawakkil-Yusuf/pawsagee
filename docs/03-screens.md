@@ -1,6 +1,6 @@
 # 03. Screens
 
-14 app screens, 390 by 844 (Recap is 390 by 693). Each has a pixel reference at `reference/<name>.png` and the source at `reference/src/<Name>.dc.html`. Copy comes from `01-brand.md`. Sample data in the references is placeholder.
+14 app screens, designed at 390 by 844 (Recap is 390 by 693). Copy comes from `01-brand.md`. The implemented screens are the source of truth; any external reference boards are not included in this repo.
 
 Routes are hash routes (see `04-architecture.md`). Bottom nav shows on routes marked "nav".
 
@@ -17,7 +17,7 @@ library (0 books) = empty
 ## Onboarding
 
 ### 1. Splash `#/splash` (no nav)
-Violet gradient fill, centered mark, wordmark, tagline, sleepy Mochi. Auto-advances to Welcome after 1.6 s (or immediately if the user taps). If a session exists, skip straight to Home.
+Violet gradient fill, centered mark, wordmark, tagline, sleepy Mochi. Auto-advances to Welcome after 3.2 s (or immediately if the user taps). If a session exists, skip straight to Home.
 
 ### 2. Welcome `#/welcome` (no nav)
 Full-body Mochi waving on a lilac blob. Eyebrow, title, body, primary `continue`, ghost `skip` (sets `onboarded` and goes to signup). Page dots 1 of 3.
