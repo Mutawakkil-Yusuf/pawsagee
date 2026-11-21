@@ -18,3 +18,12 @@ comment on column public.user_books.page_count is
 
 -- The client merges these into the catalog row at load time, so no other
 -- application code changes are needed for existing data.
+
+-- Older schemas shipped server-side streak helpers that used profiles.timezone.
+-- The app computes streaks in the browser from device-local days, so those would
+-- give two different answers. Drop them on projects that already ran the old schema.
+-- Functions first: current_streak() depends on the reading_days view.
+drop function if exists public.current_streak(uuid);
+drop function if exists public.longest_streak(uuid);
+drop view if exists public.reading_days;
+drop view if exists public.finished_per_year;
