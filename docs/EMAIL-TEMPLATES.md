@@ -1,7 +1,10 @@
 # Supabase email templates for code sign-in
 
-Sign-in emails a 6-digit code (and still includes the magic link). Supabase only puts the code in the email if the template contains `{{ .Token }}`.
-Edit **both** templates in Supabase: Authentication > Emails (Templates):
+Sign-in can use a 6-digit code **or** the magic link. Supabase only puts the code in the email if the template contains `{{ .Token }}`.
+
+**Free tier caveat:** custom email templates require a paid plan or custom SMTP. On the default free provider the email contains only the link. That is fine — the app opens the link via PKCE and signs the reader in; the code field is kept as a fallback. The copy in `js/views/onboarding.ts` is written for both cases.
+
+If you have templates enabled (paid plan or custom SMTP), edit **both** templates in Supabase: Authentication > Emails (Templates):
 
 - **Magic Link** (used by people who already have an account)
 - **Confirm signup** (used the first time someone signs in)
