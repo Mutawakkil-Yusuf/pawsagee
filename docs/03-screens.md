@@ -29,7 +29,7 @@ Illustration of colorful shelf cards. Dots 2 of 3. `continue`, `skip`.
 Mochi with a speech bubble over a 7-day strip. Dots 3 of 3. Primary `let's go` leads to signup.
 
 ### 5. Sign up `#/signup` (no nav)
-Mark, title, body. Buttons: continue with apple (hidden until Apple sign-in exists), continue with google, continue with email. Email opens a field plus `send magic link`. After sending show the "check your inbox" copy with Mochi curious. `log in` link for returning users. Legal line at the bottom. Success lands on Home and sets `profiles.onboarded_at`.
+Mark, title, body. Buttons: continue with email only. Apple and Google are hidden until OAuth is configured. Email opens a field plus `send magic link`. After sending show the "check your inbox" copy with Mochi curious. `log in` link for returning users. Legal line at the bottom. Success lands on Home and sets `profiles.onboarded_at`.
 
 ## Core
 

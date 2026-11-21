@@ -17,6 +17,8 @@ Supabase's free tier does not allow editing the built-in email templates with th
 
 Brevo's free plan allows 300 emails/day — plenty for this app. Because the hook renders its own email, the built-in Magic Link / Confirm signup templates are irrelevant here.
 
+**Note on custom SMTP:** we also tried Brevo's SMTP relay (`smtp-relay.brevo.com:587`) with a Brevo SMTP key, but the relay rejected it with `535 5.7.8 Authentication failed`. The hook is the verified, working configuration. Note that SMTP and the API share the same 300/day Brevo quota, so switching would not raise the limit anyway. Also, Supabase's own `rate_limit_email_sent` was raised from 2 to 30/hour.
+
 ## Deploying changes to the email
 
 ```bash

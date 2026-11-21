@@ -157,7 +157,7 @@ export function signup() {
 <div class="onb-copy signup-copy"><h1>start your shelf</h1><p class="lead">Sign in to sync your books and streak across every device.</p></div>
 <div class="stack">
 <button class="btn primary" data-act="email">${ic.mail} ${demo ? 'continue' : 'continue with email'}</button>
-${demo ? '' : html`<button class="btn white" data-act="google">continue with google</button>`}</div>
+</div>
 <p class="foot">already have an account? <button class="link b" data-act="email">log in</button></p>
 ${demo ? html`<p class="note">demo mode: your books stay on this device until Supabase is connected.</p>` : ''}
 <p class="legal">By continuing you agree to the Terms and Privacy Policy.</p>`, 'onb');
@@ -173,7 +173,6 @@ ${demo ? html`<p class="note">demo mode: your books stay on this device until Su
   root.addEventListener('click', async e => {
     const a = ((e.target as Element).closest('[data-act]') as HTMLElement | null)?.dataset.act;
     if (a === 'back') back('/ritual');
-    if (a === 'google') { try { await db.signInGoogle(); } catch (err) { toast(authError(err).say); sfx.error(); } }
     if (a === 'email') {
       sheet(demo
         ? html`<h2>what should mochi call you?</h2><p class="muted">Just a first name is perfect.</p>
