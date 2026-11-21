@@ -117,10 +117,11 @@ export interface BookDoc {
   isbn13?: string | null;
   first_publish_year?: number | null;
   page_count?: number | null;
+  ia?: string[];
 }
 
 export interface RouteParams extends Record<string, string> {}
 export interface View {
-  (params: RouteParams): HTMLElement;
+  (params: RouteParams): HTMLElement | Promise<HTMLElement>;
   _cleanup?: () => void;
 }

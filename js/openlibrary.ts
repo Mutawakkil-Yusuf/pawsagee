@@ -3,7 +3,7 @@ import type { BookDoc } from './types';
 
 const OL = 'https://openlibrary.org';
 const GB = 'https://www.googleapis.com/books/v1/volumes';
-const FIELDS = 'key,title,author_name,first_publish_year,cover_i,number_of_pages_median,isbn';
+const FIELDS = 'key,title,author_name,first_publish_year,cover_i,number_of_pages_median,isbn,ia';
 const GFIELDS = 'items(id,volumeInfo(title,authors,publishedDate,pageCount,imageLinks,industryIdentifiers))';
 const cache = new Map<string, BookDoc[]>();
 
@@ -36,14 +36,14 @@ async function googleList(q: string, { signal, max = 12 }: { signal?: AbortSigna
   return (((await r.json()) as { items?: GoogleVolume[] }).items || []).map(gDoc).filter((d): d is BookDoc => !!d);
 }
 
-interface OlDoc { key: string; title: string; author_name?: string[]; first_publish_year?: number; cover_i?: number; number_of_pages_median?: number; isbn?: string[] }
+interface OlDoc { key: string; title: string; author_name?: string[]; first_publish_year?: number; cover_i?: number; number_of_pages_median?: number; isbn?: string[]; ia?: string[] }
 async function olSearch(q: string, { signal }: { signal?: AbortSignal } = {}): Promise<BookDoc[]> {
   const r = await fetch(`${OL}/search.json?q=${encodeURIComponent(q)}&limit=12&fields=${FIELDS}`, { signal });
   if (!r.ok) throw new Error('search failed');
   return (((await r.json()) as { docs?: OlDoc[] }).docs ?? []).filter(d => d.title).map(d => ({
     key: d.key, title: d.title, authors: d.author_name?.slice(0, 3) ?? [],
     first_publish_year: d.first_publish_year ?? null, cover_i: d.cover_i ?? null, cover_url: null,
-    page_count: d.number_of_pages_median ?? null, isbn: d.isbn?.[0] ?? null,
+    page_count: d.number_of_pages_median ?? null, isbn: d.isbn?.[0] ?? null, ia: d.ia?.slice(0, 20) ?? [],
   }));
 }
 
@@ -81,4 +81,14 @@ export async function googleCover(b: BookDoc): Promise<string | null> {
   const want = norm(b.title);
   const hit = list.find(d => d.cover_url && (isbn || norm(d.title).startsWith(want.slice(0, 14)) || want.startsWith(norm(d.title).slice(0, 14))));
   return hit?.cover_url || null;
+}
+
+
+/** Cover id from Open Library search by ISBN. Used when Google Books is rate-limited. */
+export async function olCoverForIsbn(isbn: string): Promise<string | null> {
+  try {
+    const docs = await olSearch(`isbn:${isbn}`);
+    const id = docs.find(d => d.cover_i)?.cover_i;
+    return id ? `https://covers.openlibrary.org/b/id/${id}-L.jpg?default=false` : null;
+  } catch { return null; }
 }

@@ -94,9 +94,9 @@ export function splash() {
 export function welcome() {
   const root = el(html`${top(false)}
 <div class="onb-art welcome-art"><div class="glow"></div>
-<span class="bk bk-pink" style="--r:-12deg"><em>Americanah</em></span>
-<span class="bk bk-mint" style="--r:9deg"><em>Sapiens</em></span>
-<span class="bk bk-lilac" style="--r:7deg"><em>Kintu</em></span>
+<img class="bk bk-pink" style="--r:-12deg" src="/assets/covers/americanah.jpg" alt="" aria-hidden="true">
+<img class="bk bk-mint" style="--r:9deg" src="/assets/covers/sapiens.jpg" alt="" aria-hidden="true">
+<img class="bk bk-lilac" style="--r:7deg" src="/assets/covers/kintu.jpg" alt="" aria-hidden="true">
 <div class="art-mochi">${mochi('full', { size: 250, cls: 'idle', label: 'Mochi the cat, waving' })}</div></div>
 <div class="onb-copy"><p class="eyebrow">WELCOME TO PAWSAGE</p><h1>your cozy corner for books</h1>
 <p class="lead">Keep every book you read on one pretty shelf, and let Mochi nudge you back to the page.</p></div>
@@ -152,7 +152,7 @@ ${dots(3)}<button class="btn primary" data-act="next">let's go ${ic.chevron}</bu
 export function signup() {
   const demo = mode === 'demo';
   const root = el(html`<header class="onb-top"><button class="iconbtn" data-act="back" aria-label="Back">${ic.back}</button><span></span></header>
-<div class="onb-art fan-art"><span class="bk bk-violet" style="--r:-14deg"><em>Born a Crime</em></span><span class="bk bk-butter" style="--r:-4deg"><em>Atomic Habits</em></span><span class="bk bk-pink" style="--r:8deg"><em>Dune</em></span><span class="bk bk-mint" style="--r:14deg"><em>Kintu</em></span>
+<div class="onb-art fan-art"><img class="bk bk-violet" style="--r:-14deg" src="/assets/covers/born-a-crime.jpg" alt="" aria-hidden="true"><img class="bk bk-butter" style="--r:-4deg" src="/assets/covers/atomic-habits.jpg" alt="" aria-hidden="true"><img class="bk bk-pink" style="--r:8deg" src="/assets/covers/dune.jpg" alt="" aria-hidden="true"><img class="bk bk-mint" style="--r:14deg" src="/assets/covers/kintu.jpg" alt="" aria-hidden="true">
 <div class="fan-mochi">${mochi('curious', { size: 150 })}</div></div>
 <div class="onb-copy signup-copy"><h1>start your shelf</h1><p class="lead">Sign in to sync your books and streak across every device.</p></div>
 <div class="stack">

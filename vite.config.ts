@@ -15,7 +15,7 @@ export default defineConfig({
       manifest: false, // keep the hand-written public/manifest.webmanifest
       injectRegister: null, // registration is explicit in js/main.ts
       workbox: {
-        globPatterns: ['**/*.{js,css,html,svg,png,woff2,webmanifest}'],
+        globPatterns: ['**/*.{js,mjs,css,html,svg,png,jpg,woff2,webmanifest}'],
         navigateFallback: '/index.html',
         navigateFallbackDenylist: [/^\/vendor\//],
         runtimeCaching: [

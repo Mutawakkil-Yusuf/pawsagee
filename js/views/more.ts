@@ -22,6 +22,8 @@ ${GOALS.map(([k, l, lo, hi, st]) => html`<div class="setrow"><span>${l}</span><d
 <section class="card set">
 <div class="setrow"><span><b>sounds</b><small class="muted">soft pops, chimes and a tiny meow</small></span><button class="sw ${soundOn() ? 'on' : ''}" role="switch" aria-checked="${soundOn()}" aria-label="Sounds" data-act="sound" data-sfx="none"><i></i></button></div>
 <div class="setrow"><span><b>daily nudge</b><small class="muted">mochi reminds you here at 9 pm</small></span><button class="sw ${remind ? 'on' : ''}" role="switch" aria-checked="${remind}" aria-label="Daily nudge" data-act="remind" data-sfx="none"><i></i></button></div></section>
+<section class="card set"><b class="heading">reading</b>
+<a class="btn white" href="#/pdf">${ic.book} read a pdf from your device</a><p class="muted note">Your files stay on your phone. Nothing is uploaded.</p></section>
 <section class="card set"><b class="heading">your data</b>
 ${/iphone|ipad/i.test(navigator.userAgent) && !navigator.standalone ? html`<p class="muted note">On iPhone: tap the Share button in Safari, then Add to Home Screen.</p>` : ''}
 <button class="btn white" data-act="install" hidden>${ic.download} install pawsage</button>

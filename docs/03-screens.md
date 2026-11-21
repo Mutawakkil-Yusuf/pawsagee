@@ -65,6 +65,11 @@ Manual log variant (from Home `log pages`): same screen without the timer, just 
 ### 12. Stats `#/stats` (nav)
 Segmented range: week, month, year. Yearly goal ring (`finished_per_year`), streak and longest streak tiles, pages and minutes charts (simple SVG bars, no chart library), month calendar with read days, top shelf, and a `share recap` button that opens Recap. Mochi bubble only when the goal ring is above 25%.
 
+## Reading (added after the original 14 screens)
+
+- **Read** `#/read/:id` (no nav): paginated public-domain text with chapter navigation, TOC and reading settings.
+- **Read PDF** `#/pdf` (no nav): pick a local PDF and read it page by page. See `docs/06-reading.md`.
+
 ## Moments
 
 ### 13. Celebrate `#/celebrate?type=streak&n=7` (no nav)

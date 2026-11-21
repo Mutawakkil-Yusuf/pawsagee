@@ -13,7 +13,7 @@ import type { ReadingStatus, RouteParams } from '../types';
 const STATUSES = [['want', 'want to read', 'butter'], ['reading', 'reading', 'mint'], ['finished', 'finished', 'pink']];
 const IDEAS = ['atomic habits', 'adichie', 'dune', 'sapiens', 'kintu', 'the alchemist'];
 
-const asBook = d => ({ key: d.key || 'r:' + d.title, title: d.title, authors: d.authors, ol_cover_id: d.cover_i, cover_url: d.cover_url, isbn13: d.isbn });
+const asBook = d => ({ key: d.key || 'r:' + d.title, title: d.title, authors: d.authors, ol_cover_id: d.cover_i, cover_url: d.cover_url, isbn13: d.isbn, ia: d.ia });
 
 export function add({ tab = 'search', shelf = '' }: RouteParams) {
   let results = [], open = null, shelfId = shelf, q = '', ctl = null, state = 'idle', timer = null;
@@ -134,7 +134,7 @@ ${results.map(row)}<p class="muted notfound">Can't find it? Switch to <button cl
     if (act === 'add') {
       const d = results[+a.dataset.i];
       (a as HTMLButtonElement).disabled = true;
-      const r = await addBook({ key: d.key, title: d.title, authors: d.authors, first_publish_year: d.first_publish_year, cover_i: d.cover_i, cover_url: d.cover_url || (d.cover_i ? null : cachedGoogle(asBook(d))), page_count: d.page_count, isbn: d.isbn }, a.dataset.st as ReadingStatus, shelfId || null);
+      const r = await addBook({ key: d.key, title: d.title, authors: d.authors, first_publish_year: d.first_publish_year, cover_i: d.cover_i, cover_url: d.cover_url || (d.cover_i ? null : cachedGoogle(asBook(d))), page_count: d.page_count, isbn: d.isbn, ia: d.ia }, a.dataset.st as ReadingStatus, shelfId || null);
       if (!r) return;
       open = null; sfx.add();
       toast(r.duplicate ? 'already on your shelf.' : 'on the shelf! mochi approves.', { action: r.duplicate ? undefined : 'undo', onAction: () => removeBook(r.id).then(paint) });

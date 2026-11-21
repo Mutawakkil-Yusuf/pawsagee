@@ -1,7 +1,7 @@
 // Cover resolution. A book can have a cover from several places; we try them in order and fall back to a generated cover.
 //   1. Open Library by cover id   2. a stored cover_url   3. Google Books (looked up by ISBN or title+author)   4. Open Library by ISBN
 import { escape } from './html';
-import { googleCover } from './openlibrary';
+import { googleCover, olCoverForIsbn } from './openlibrary';
 import type { BookDoc, CatalogBook, UserBook } from './types';
 
 const KEY = 'pawsage.covers.v1';
@@ -45,7 +45,9 @@ export async function findCover(b: BookDoc): Promise<string | null> {
   const k = ck(b), hit = map[k];
   if (hit && (hit.u || Date.now() - hit.t < RETRY_MS)) return hit.u;
   if (inflight.has(k)) return inflight.get(k)!;
-  const p = googleCover(b).then(u => { map[k] = { u: u || null, t: Date.now() }; save(); return u; }).catch(() => null).finally(() => inflight.delete(k));
+  const isbn = b.isbn13 || b.isbn;
+  const lookup = isbn ? olCoverForIsbn(isbn).then(u => u || googleCover(b)) : googleCover(b);
+  const p = lookup.then(u => { map[k] = { u: u || null, t: Date.now() }; save(); return u; }).catch(() => null).finally(() => inflight.delete(k));
   inflight.set(k, p);
   return p;
 }

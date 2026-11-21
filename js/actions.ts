@@ -111,12 +111,12 @@ export const firstName = () => (store.get().profile?.display_name || 'reader').s
 
 export async function loadSample() {
   const demo: (BookDoc & { st: ReadingStatus })[] = [
-    { key: '/works/s1', title: 'Why Nations Fail', isbn: '9780307719225', authors: ['Daron Acemoglu', 'James A. Robinson'], first_publish_year: 2012, page_count: 464, st: 'reading' },
-    { key: '/works/s2', title: 'Americanah', isbn: '9780307455925', authors: ['Chimamanda Ngozi Adichie'], first_publish_year: 2013, page_count: 477, st: 'want' },
-    { key: '/works/s3', title: 'Sapiens', isbn: '9780062316097', authors: ['Yuval Noah Harari'], first_publish_year: 2011, page_count: 443, st: 'want' },
-    { key: '/works/s4', title: 'Kintu', isbn: '9781617756177', authors: ['Jennifer Nansubuga Makumbi'], first_publish_year: 2014, page_count: 448, st: 'want' },
-    { key: '/works/s5', title: 'Dune', isbn: '9780441013593', authors: ['Frank Herbert'], first_publish_year: 1965, page_count: 612, st: 'finished' },
-    { key: '/works/s6', title: 'Atomic Habits', isbn: '9780735211292', authors: ['James Clear'], first_publish_year: 2018, page_count: 320, st: 'finished' },
+    { key: '/works/s1', title: 'Why Nations Fail', cover_i: 7253519, isbn: '9780307719225', authors: ['Daron Acemoglu', 'James A. Robinson'], first_publish_year: 2012, page_count: 464, st: 'reading' },
+    { key: '/works/s2', title: 'Americanah', cover_i: 8474037, isbn: '9780307455925', authors: ['Chimamanda Ngozi Adichie'], first_publish_year: 2013, page_count: 477, st: 'want' },
+    { key: '/works/s3', title: 'Sapiens', cover_i: 8634250, isbn: '9780062316097', authors: ['Yuval Noah Harari'], first_publish_year: 2011, page_count: 443, st: 'want' },
+    { key: '/works/s4', title: 'Kintu', cover_i: 9185181, isbn: '9781617756177', authors: ['Jennifer Nansubuga Makumbi'], first_publish_year: 2014, page_count: 448, st: 'want' },
+    { key: '/works/s5', title: 'Dune', cover_i: 11481354, isbn: '9780441013593', authors: ['Frank Herbert'], first_publish_year: 1965, page_count: 612, st: 'finished' },
+    { key: '/works/s6', title: 'Atomic Habits', cover_i: 12539702, isbn: '9780735211292', authors: ['James Clear'], first_publish_year: 2018, page_count: 320, st: 'finished' },
   ];
   const shelf = store.get().shelves[0]?.id || null;
   for (const b of demo) await db.addBook(b, b.st, shelf);

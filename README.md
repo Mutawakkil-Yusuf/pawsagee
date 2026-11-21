@@ -1,6 +1,6 @@
 # Pawsage
 
-A cozy reading tracker. Vanilla UI (no framework), Vite + TypeScript tooling, Supabase, Netlify, installable PWA.
+A cozy reading tracker. Vanilla UI (no framework), Vite + TypeScript tooling, Supabase, Netlify, installable PWA. Read public-domain editions or your own PDFs right in the app.
 
 ## Run it locally
 
@@ -48,14 +48,20 @@ Connect the repo. `netlify.toml` sets `npm ci && npm run build`, publishes `dist
 - `css/tokens.css`: brand tokens. `docs/`: brand, design system, screens, architecture, stack, testing
 - `public/`: static assets copied verbatim into the build (icons, fonts, Mochi SVGs, manifest, QR scanner)
 - `tests/`: Vitest unit tests
+- `js/reader.ts` + `js/views/read.ts` + `js/views/pdfread.ts`: in-app reading (see `docs/06-reading.md`)
 
 ## Covers
 
 Each book tries, in order: Open Library by cover id, a stored cover_url (per-user override first), Google Books (looked up by ISBN or title and author), Open Library by ISBN, then a generated cover. Books without a cover get a background lookup and the result is remembered on **that reader's** `user_books` row, so it works even when the shared catalog row belongs to someone else.
 
+## Reading
+
+Book detail → **read a free edition** opens a clean, paginated public-domain edition (Open Library / Internet Archive). More → **read a pdf from your device** lets you read your own PDFs locally. See `docs/06-reading.md`.
+
 ## Known limits
 
 - Reminders are an in-app nudge on Home. Real push notifications are not built (web push via the service worker is the next step; native only if app stores are a goal).
+- In-app text works for public-domain editions; copyrighted books track progress but are not reproduced.
 - Apple sign-in is not built (needs an Apple developer account).
 - Streaks and stats are computed in the browser from the last 400 days of sessions.
 - Cover images load from Open Library. Missing covers fall back to generated ones.
